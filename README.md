@@ -6,10 +6,10 @@ If you are new to Celery check out http://celeryproject.org/
 
 ## Differences with `node-celery`
 
- 1. This library is now based on [amqp-coffee](https://github.com/dropbox/amqp-coffee),
+ 1. This library is now based on [amqplib](https://github.com/squaremo/amqp.node),
     instead of [node-amqp](https://github.com/postwait/node-amqp).
 
- 2. `EventEmitter` based code has been removed; only pure callbacks are available.
+ 2. `EventEmitter` based code has been removed; only promises are available.
 
  3. Support for the Redis Backend has been removed.
 
@@ -30,15 +30,15 @@ If you are new to Celery check out http://celeryproject.org/
 
 Simple example, included as [examples/hello-world.js](https://github.com/3stack-software/celery-shoot/blob/master/examples/hello-world.js):
 
-```javascript
-var celery = require('celery-shoot'),
-client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(err){
-  assert(err == null);
+```js
+import { withClient } from 'celery-shoot';
 
-  var task = client.createTask('tasks.echo');
-  task.invoke(["Hello Wolrd"], function(err, result){
-      console.log(err, result);
-  })
+withClient('amqp://guest:guest@localhost:5672//', {}, async client => {
+  const result = await client.call({
+    name: 'tasks.error',
+    args: ['Hello World'],
+  });
+  console.log('tasks.echo response:', result);
 });
 ```
 
@@ -47,20 +47,20 @@ client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(e
 
 The ETA (estimated time of arrival) lets you set a specific date and time that is the earliest time at which your task will be executed:
 
-```javascript
-var celery = require('celery-shoot'),
-client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(err){
-  assert(err == null);
+```js
+import { withClient } from 'celery-shoot';
 
-  var task = client.createTask('tasks.send_email', {
-      eta: 60 * 60 * 1000 // execute in an hour from invocation
-  }, {
-      ignoreResult: true // ignore results
+withClient('amqp://guest:guest@localhost:5672//', {}, async client => {
+  await client.call({
+    name: 'tasks.send_email',
+    kwargs: {
+      to: 'to@example.com',
+      title: 'sample email',
+    },
+    eta: 30 * 1000,
+    ignoreResult: true,
   });
-  task.invoke([], {
-    to: 'to@example.com',
-    title: 'sample email'
-  })
+  console.log('tasks.send_email sent');
 });
 ```
 
@@ -69,16 +69,14 @@ client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(e
 The expires argument defines an optional expiry time, a specific date and time using Date:
 
 ```javascript
-var celery = require('celery-shoot'),
-client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(err){
-  assert(err == null);
+import { withClient } from 'celery-shoot';
 
-  var task = client.createTask('tasks.sleep', {
-      eta: 60 * 60 * 1000 // expire in an hour
+withClient('amqp://guest:guest@localhost:5672//', {}, async client => {
+  await client.call({
+    name: 'tasks.sleep',
+    args: [2 * 60 * 60],
+    expires: 1000, // in 1s
   });
-  task.invoke([2 * 60 * 60], function(err, res){
-      console.log(err, res);
-  })
 });
 ```
 
@@ -86,42 +84,50 @@ client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', function(e
 
 The simplest way to route tasks to different queues is using `options.routes`:
 
-```javascript
-var celery = require('celery-shoot'),
-client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', {
-  routes: {
-      'tasks.send_mail': {
-          'queue': 'mail'
-      }
-  }
-}, function(err){
-  assert(err == null);
+You can also configure custom routers, similar to http://celery.readthedocs.org/en/latest/userguide/routing.html#routers
 
-  var task = client.createTask('tasks.send_email');
-  task.invoke([], {
-    to: 'to@example.com',
-    title: 'sample email'
+```js
+import { withClient } from 'celery-shoot';
+
+
+const routes = [
+  {
+    'tasks.send_mail': {
+      queue: 'mail',
+    },
+  },
+  (task, args, kwargs) => {
+    if(task === 'myapp.tasks.compress_video'){
+      return {
+        'exchange': 'video',
+        'routingKey': 'video.compress'
+      }
+    }
+    return null;
+  }
+];
+
+withClient('amqp://guest:guest@localhost:5672//', { routes }, async client => {
+  await client.call({
+    name: 'tasks.send_email',
+    kwargs: {
+      to: 'to@example.com',
+      title: 'sample email',
+    },
+    ignoreResult: true,
   });
-  var task2 = client.createTask('tasks.calculate_rating');
-  task2.invoke([], {
-      item: 1345
+  await client.call({
+    name: 'tasks.calculate_rating',
+    kwargs: {
+      item: 1345,
+    },
   });
 });
 ```
 
-You can also configure custom routers, similar to http://celery.readthedocs.org/en/latest/userguide/routing.html#routers
-
 
 ```js
-var myRouter = function(task, args, kwargs){
-  if(task === 'myapp.tasks.compress_video'){
-    return {
-      'exchange': 'video',
-      'routingKey': 'video.compress'
-    }
-  }
-  return null;
-}
+var myRouter = 
 Client({
   routes: [myRouter]
 });
