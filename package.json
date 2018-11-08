@@ -3,14 +3,17 @@
   "version": "4.2.1",
   "description": "Celery client for Node (Forked from node-celery)",
   "author": "Nathan Muir <ndmuir@gmail.com>",
-  "contributors": ["Mher Movsisyan <mher.movsisyan@gmail.com>"],
+  "contributors": [
+    "Mher Movsisyan <mher.movsisyan@gmail.com>"
+  ],
   "dependencies": {
-    "debug": "~2.2",
-    "amqp-coffee": "0.1.25",
-    "node-uuid": "~1.4",
-    "async": "~1.2",
-    "underscore": "~1.8",
-    "URIjs": "~1.15"
+    "amqp-coffee": "^0.1.31",
+    "async": "^2.6.1",
+    "debug": "^4.1.0",
+    "lodash": "^4.17.11",
+    "underscore": "^1.9.1",
+    "urijs": "^1.19.1",
+    "uuid": "^3.3.2"
   },
   "repository": {
     "type": "git",
@@ -20,7 +23,7 @@
     "mocha": "*"
   },
   "engine": {
-    "node": "0.10"
+    "node": ">=8"
   },
   "main": "src/celery.js",
   "license": "MIT"

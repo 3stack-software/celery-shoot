@@ -1,5 +1,9 @@
-var celery = require('../celery'),
-client = celery.connectWithUri('amqp://guest:guest@localhost:5672//', {
+const assert = require('assert');
+const celery = require('../src/celery');
+
+const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
+
+var client = celery.connectWithUri(AMQP_HOST, {
   routes: {
       'tasks.send_mail': {
           'queue': 'mail'

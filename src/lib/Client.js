@@ -3,8 +3,8 @@ var
   amqp = require('amqp-coffee'),
   Task = require('./Task'),
   mixinFuture = require('./Task.mixin.Futures'),
-  URI = require('URIjs'),
-  _ = require('underscore');
+  URI = require('urijs'),
+  _ = require('lodash');
 
 
 module.exports = (function() {
@@ -58,7 +58,7 @@ module.exports = (function() {
    * @param {String} [options.resultsExchange=celeryresults]
    * @param {String} [options.eventsExchange=celeryev]
    * @param {Boolean} [options.sendTaskSentEvent=true]
-   * @param {Object} [options.taskResultQueueOptions] Settings for result queue (As per AMQP.Queue) {@link https://github.com/dropbox/amqp-coffee#connectionqueuequeueoptionscallback}
+   * @param {Object} [options.taskResultQueueOptions] Settings for result queue (As per AMQP.Queue) {@link https://github.com/dropbox/amqp-coffee#connectionqueuequeueoptionsaback}
    * @param {Object} [options.routes] A mapping of Task Name => Route. Where Route = {exchange: String, routingKey: String}
    * @param {Function} clientConnected
    */

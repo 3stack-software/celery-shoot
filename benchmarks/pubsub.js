@@ -1,31 +1,31 @@
-process.env.CELERY_SHOOT = 5;
+const assert = require('assert');
+const each = require('async/each');
+const celery = require('../src/celery');
 
-var celery = require('../celery'),
-	util = require('util');
+const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
 
-var client = celery.createClient({
-	CELERY_BROKER_URL: 'amqp://',
-	CELERY_RESULT_BACKEND: 'amqp'
-});
+const n = parseInt(process.argv.length > 2 ? process.argv[2] : 100, 10);
+const L = `tasksSent (n=${n})`;
 
-client.on('error', function(err) {
-	console.log(err);
-});
+function* series(a) {
+  for(let i = 0; i < a; i += 1) {
+    yield i;
+  }
+}
 
-var n = parseInt(process.argv.length > 2 ? process.argv[2] : 1000, 10);
-
-client.once('connect', function() {
-	var start = Date.now();
-	var j = n;
-	onresult = function(result) {
-		j--;
-		if (j === 1) {
-			console.log(util.format('Execued %d tasks in %s milliseconds',
-			n, Date.now() - start));
-			client.end();
-		}
-	};
-	for (var i = 0; i < n; i++) {
-		client.call('tasks.add', [i, i], null, null, onresult);
-	}
+var client = celery.connectWithUri(AMQP_HOST, function (err) {
+  assert(err == null);
+  const task = client.createTask('tasks.add', {}, { ignoreResult: false });
+  console.time(L);
+  each(series(n), function (i, cb) {
+    task.invoke([i, i], cb);
+  }, function (err) {
+    console.timeEnd(L);
+    if (err) {
+      console.error(err)
+    }
+    client.close(function() {
+      console.log('done')
+    });
+  });
 });

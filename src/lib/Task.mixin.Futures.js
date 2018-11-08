@@ -1,4 +1,4 @@
-var _ = require('underscore'),
+var _ = require('lodash'),
   Task = require('./Task');
 
 module.exports = function (Future) {

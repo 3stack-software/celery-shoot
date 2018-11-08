@@ -1,9 +1,11 @@
-import logging
+import os
+import time
 
 from celery import Celery
 
+broker = os.environ.get('AMQP_HOST', 'amqp://guest:guest@localhost//')
 
-celery = Celery('tasks', broker='amqp://')
+celery = Celery('tasks', broker=broker)
 
 celery.conf.update(
         CELERY_ACCEPT_CONTENT=["json"],
@@ -14,7 +16,7 @@ celery.conf.update(
 
 @celery.task
 def add(x, y):
-    print 'got task to add {} + {} = {}'.format(x, y, x+y)
+    print('got task to add {} + {} = {}'.format(x, y, x+y))
     return x + y
 
 
@@ -25,12 +27,10 @@ def sleep(x):
 
 
 @celery.task
-def time():
-    import time
-
+def curtime():
     current_time = int(time.time() * 1000)
-    print 'the time is {}'.format(current_time)
-    print 'the time is {}'.format(time.time())
+    print('the time is {}'.format(current_time))
+    print('the time is {}'.format(time.time()))
     return current_time
 
 
@@ -47,7 +47,7 @@ def echo(msg):
 # client should call with ignoreResult=True as results are never sent
 @celery.task(ignore_result=True)
 def send_email(to='me@example.com', title='hi'):
-    logging.info("Sending email to '%s' with title '%s'" % (to, title))
+    print("Sending email to '%s' with title '%s'" % (to, title))
 
 
 if __name__ == "__main__":
