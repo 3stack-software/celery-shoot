@@ -1,7 +1,7 @@
-import { filter } from 'rxjs/operators';
 import { ReplaySubject, throwError } from 'rxjs';
+import { first } from 'rxjs/operators';
 import defer from './defer';
-import { debugError, debugLog } from './logging';
+import { debugError } from './logging';
 
 export class CeleryResultError extends Error {
   constructor(status, result, traceback, ...params) {
@@ -31,6 +31,10 @@ class TaskResult {
       return throwError(new Error('destroyed'));
     }
     return this.backend.observeTask(this.taskId);
+  }
+
+  async whenStarted() {
+    return this.waitForStatus('STARTED');
   }
 
   async waitForStatus(status = 'SUCCESS') {
@@ -65,7 +69,7 @@ export default class Backend {
       expires: 86400000,
       ...queueOptions,
     };
-    this._closed = false;
+    this.closed = false;
     this.whenClosed = defer();
     this.sinks = new Map(); // correlationId => ResultStream
     channel.on('close', this.handleChannelClose);
@@ -78,10 +82,10 @@ export default class Backend {
   };
 
   handleChannelClose = () => {
-    if (this._closed) {
+    if (this.closed) {
       return;
     }
-    this._closed = true;
+    this.closed = true;
     this.channel.removeListener('close', this.handleChannelClose);
     this.channel.removeListener('error', this.handleChannelError);
     this.sinks.forEach(sink => {
@@ -104,7 +108,7 @@ export default class Backend {
   }
 
   handleMessage = msg => {
-    if (this._closed) {
+    if (this.closed) {
       return;
     }
     if (msg == null) {
@@ -124,7 +128,7 @@ export default class Backend {
       const data = JSON.parse(msg.content.toString());
       const s = data.status;
       if (s === 'FAILURE' || s === 'REVOKED' || s === 'IGNORED') {
-        sink.next(
+        sink.error(
           new CeleryResultError(
             data.status,
             data.result,
@@ -145,7 +149,7 @@ export default class Backend {
   }
 
   registerTask(taskId) {
-    if (this._closed) {
+    if (this.closed) {
       return new TaskResult(null, null);
     }
     if (this.sinks.has(taskId)) {
@@ -168,7 +172,7 @@ export default class Backend {
   }
 
   observeTask(taskId) {
-    if (this._closed) {
+    if (this.closed) {
       return throwError(new Error('closed'));
     }
     if (!this.sinks.has(taskId)) {
@@ -179,7 +183,7 @@ export default class Backend {
 
   async waitForStatus(taskId, status = 'SUCCESS') {
     return this.observeTask(taskId)
-      .pipe(filter(data => data.status === status))
+      .pipe(first(data => data.status === status))
       .toPromise();
   }
 }

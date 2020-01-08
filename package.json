@@ -1,6 +1,6 @@
 {
   "name": "celery-shoot",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-alpha.3",
   "main": "dist/celery-shoot.cjs.js",
   "module": "dist/celery-shoot.esm.js",
   "description": "Celery client for Node (Forked from node-celery)",
@@ -10,11 +10,9 @@
   ],
   "dependencies": {
     "amqplib": "^0.5.2",
-    "async": "^2.6.1",
     "bluebird": "^3.5.2",
     "debug": "^4.1.1",
     "rxjs": "^6.5.3",
-    "urijs": "^1.19.1",
     "uuid": "^3.3.2"
   },
   "repository": {

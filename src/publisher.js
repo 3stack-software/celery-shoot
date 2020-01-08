@@ -23,7 +23,7 @@ export class Publisher {
   };
 
   handleChannelClose = () => {
-    if (this._closed) {
+    if (this.closed) {
       return;
     }
     this.closed = true;
@@ -128,9 +128,7 @@ export class Publisher {
         options,
       );
     });
-    if (!writeResult) {
-      this.needsDrain = true;
-    }
+    this.needsDrain = !writeResult;
     return writeResult;
   }
 }

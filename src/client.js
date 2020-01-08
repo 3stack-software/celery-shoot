@@ -20,7 +20,7 @@ export class CeleryClient {
       routes: {},
       ...options,
     };
-    this._closed = false;
+    this.closed = false;
     this._whenClosed = defer();
     this.connection.on('error', this.handleConnectionError);
     this.connection.on('close', this.handleConnectionClose);
@@ -34,7 +34,7 @@ export class CeleryClient {
     if (this.connection == null) {
       return;
     }
-    this._closed = true;
+    this.closed = true;
     this._whenClosed.resolve();
     this.connection.removeListener('error', this.handleConnectionError);
     this.connection.removeListener('close', this.handleConnectionClose);
@@ -44,10 +44,10 @@ export class CeleryClient {
   };
 
   async close() {
-    if (this._closed) {
+    if (this.closed) {
       return;
     }
-    this._closed = true;
+    this.closed = true;
     debugLog('closing connection');
     await this.connection.close();
     debugLog('connection closed');
@@ -90,7 +90,7 @@ export class CeleryClient {
     ignoreResult = false,
     ...options
   }) {
-    if (this._closed) {
+    if (this.closed) {
       throw new Error('Connection closed');
     }
     const taskId = uuidv4();
@@ -126,7 +126,7 @@ export class CeleryClient {
   }
 
   async waitForDrain() {
-    if (this._closed) {
+    if (this.closed) {
       throw new Error('Connection closed');
     }
     return this.publisher.waitForDrain();
