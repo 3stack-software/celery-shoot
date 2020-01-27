@@ -146,11 +146,11 @@ export class ReconnectingClient {
     return this.client.call(...args);
   }
 
-  async waitForDrain() {
+  async waitForDrain(timeout = 0) {
     if (this.state !== CONNECTED) {
       throw new Error('Connection closed');
     }
-    return this.client.waitForDrain();
+    return this.client.waitForDrain(timeout);
   }
 
   async whenClosed() {

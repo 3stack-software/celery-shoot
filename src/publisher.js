@@ -1,3 +1,4 @@
+import Promise from 'bluebird';
 import defer from './defer';
 import { asTaskV1, asTaskV2, serializeEvent, serializeTask } from './protocol';
 import { debugLog, debugError } from './logging';
@@ -99,7 +100,7 @@ export class Publisher {
     );
   }
 
-  async waitForDrain() {
+  async waitForDrain(timeout = 0) {
     if (this.blocked) {
       throw new Error('blocked');
     }
@@ -108,6 +109,9 @@ export class Publisher {
     }
     if (this.nextDrain == null) {
       this.nextDrain = defer();
+    }
+    if (timeout > 0) {
+      return Promise.race([Promise.delay(timeout), this.nextDrain.promise]);
     }
     return this.nextDrain.promise;
   }

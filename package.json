@@ -1,6 +1,6 @@
 {
   "name": "celery-shoot",
-  "version": "5.0.0-alpha.3",
+  "version": "5.0.0-alpha.4",
   "main": "dist/celery-shoot.cjs.js",
   "module": "dist/celery-shoot.esm.js",
   "description": "Celery client for Node (Forked from node-celery)",

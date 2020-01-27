@@ -125,11 +125,11 @@ export class CeleryClient {
     return { writeResult, result };
   }
 
-  async waitForDrain() {
+  async waitForDrain(timeout = 0) {
     if (this.closed) {
       throw new Error('Connection closed');
     }
-    return this.publisher.waitForDrain();
+    return this.publisher.waitForDrain(timeout);
   }
 
   async whenClosed() {
