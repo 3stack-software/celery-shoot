@@ -82,7 +82,7 @@ export class ReconnectingClient {
         clearTimeout(this._backoffTimer);
         this._backoffTimer = null;
       }
-    } else {
+    } else if (this.state !== DISCONNECTED) {
       debugError('Unexpected state, close()', this.state);
     }
   }
