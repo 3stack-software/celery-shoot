@@ -182,6 +182,7 @@ export function serializeEvent(
   taskRoutingKey,
 ) {
   const body = {
+    type,
     ...event,
     exchange: taskExchange,
     routing_key: taskRoutingKey,
