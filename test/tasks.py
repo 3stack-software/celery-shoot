@@ -5,13 +5,7 @@ from celery import Celery
 
 broker = os.environ.get('AMQP_HOST', 'amqp://guest:guest@localhost//')
 
-celery = Celery('tasks', broker=broker)
-
-celery.conf.update(
-        CELERY_ACCEPT_CONTENT=["json"],
-        CELERY_RESULT_BACKEND = "amqp",
-        CELERY_RESULT_SERIALIZER='json',
-        )
+celery = Celery('tasks', broker=broker,  backend='rpc://')
 
 
 @celery.task

@@ -1,18 +1,18 @@
 {
   "name": "celery-shoot",
-  "version": "4.2.1",
+  "version": "5.0.0-alpha.4",
+  "main": "dist/celery-shoot.cjs.js",
+  "module": "dist/celery-shoot.esm.js",
   "description": "Celery client for Node (Forked from node-celery)",
   "author": "Nathan Muir <ndmuir@gmail.com>",
   "contributors": [
     "Mher Movsisyan <mher.movsisyan@gmail.com>"
   ],
   "dependencies": {
-    "amqp-coffee": "^0.1.31",
-    "async": "^2.6.1",
-    "debug": "^4.1.0",
-    "lodash": "^4.17.11",
-    "underscore": "^1.9.1",
-    "urijs": "^1.19.1",
+    "amqplib": "^0.5.2",
+    "bluebird": "^3.5.2",
+    "debug": "^4.1.1",
+    "rxjs": "^6.5.3",
     "uuid": "^3.3.2"
   },
   "repository": {
@@ -20,11 +20,51 @@
     "url": "git://github.com/3stack-software/celery-shoot.git"
   },
   "devDependencies": {
-    "mocha": "*"
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-eslint": "^10.0.1",
+    "builtin-modules": "^3.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-react": "^7.11.1",
+    "git-rev-sync": "^1.12.0",
+    "mocha": "^5.2.0",
+    "prettier": "1.13.7",
+    "rollup": "^0.67.0",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0"
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "extends": [
+      "airbnb",
+      "plugin:prettier/recommended",
+      "prettier/standard"
+    ],
+    "rules": {
+      "no-underscore-dangle": "off",
+      "no-await-in-loop": "off",
+      "no-restricted-syntax": "off"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   },
   "engine": {
     "node": ">=8"
   },
-  "main": "src/celery.js",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js",
+    "pretest": "npm run build"
+  }
 }

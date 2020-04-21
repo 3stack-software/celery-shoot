@@ -1,24 +1,26 @@
-const assert = require('assert');
-const celery = require('../src/celery');
+const { withClient } = require('../dist/celery-shoot.cjs');
 
 const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
 
-var client = celery.connectWithUri(AMQP_HOST, {
-  routes: {
-      'tasks.send_mail': {
-          'queue': 'mail'
-      }
-  }
-}, function(err){
-  assert(err == null);
+const routes = {
+  'tasks.send_mail': {
+    queue: 'mail',
+  },
+};
 
-  var task = client.createTask('tasks.send_email');
-  task.invoke([], {
-    to: 'to@example.com',
-    title: 'sample email'
+withClient(AMQP_HOST, { routes }, async client => {
+  await client.call({
+    name: 'tasks.send_email',
+    kwargs: {
+      to: 'to@example.com',
+      title: 'sample email',
+    },
+    ignoreResult: true,
   });
-  var task2 = client.createTask('tasks.calculate_rating');
-  task2.invoke([], {
-      item: 1345
+  await client.call({
+    name: 'tasks.calculate_rating',
+    kwargs: {
+      item: 1345,
+    },
   });
 });
