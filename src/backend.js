@@ -123,7 +123,8 @@ export default class Backend {
     const { correlationId } = msg.properties;
     const sink = this.sinks.get(correlationId);
     if (sink == null) {
-      this.channel.nack(msg);
+      debugError(`NACK Task ${correlationId}`, msg);
+      this.channel.nack(msg, false, false);
     } else if (!sink.isStopped) {
       const data = JSON.parse(msg.content.toString());
       const s = data.status;
