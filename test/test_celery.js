@@ -20,10 +20,12 @@ describe('celery functional tests', () => {
     it('should call a task without error', async () =>
       getClient(async client => {
         assert.ok(client != null);
-        const result = await client.call({
-          name: 'tasks.add',
-          args: [1, 2],
-        });
+        const result = await client
+          .call({
+            name: 'tasks.add',
+            args: [1, 2],
+          })
+          .result.get();
         assert.strictEqual(result, 3);
       }));
   });
@@ -35,10 +37,12 @@ describe('celery functional tests', () => {
         const delay = 1000;
         const acceptableDelay = 1000;
 
-        const result = await client.call({
-          name: 'tasks.curtime',
-          eta: delay,
-        });
+        const result = await client
+          .call({
+            name: 'tasks.curtime',
+            eta: delay,
+          })
+          .result.get();
         assert.ok(
           result > calledAt + acceptableDelay,
           `!(${result} > ${calledAt + acceptableDelay} )`,
@@ -52,10 +56,12 @@ describe('celery functional tests', () => {
         const pastTime = -10 * 1000;
 
         try {
-          await client.call({
-            name: 'tasks.curtime',
-            expires: pastTime,
-          });
+          await client
+            .call({
+              name: 'tasks.curtime',
+              expires: pastTime,
+            })
+            .result.get();
           assert.ok(false);
         } catch (err) {
           assert.strictEqual(err.status, 'REVOKED');
