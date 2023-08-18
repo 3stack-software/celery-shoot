@@ -1,5 +1,5 @@
 import amqp from 'amqplib';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { connect as connectBackend } from './backend';
 import defer from './defer';
 import { debugError, debugLog } from './logging';
