@@ -1,6 +1,6 @@
 {
   "name": "celery-shoot",
-  "version": "5.0.0-alpha.8",
+  "version": "5.0.0-alpha.9",
   "type": "module",
   "main": "dist/celery-shoot.cjs.js",
   "module": "dist/celery-shoot.esm.js",
