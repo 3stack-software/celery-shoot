@@ -26,7 +26,7 @@ export class CeleryClient {
     this.connection.on('close', this.handleConnectionClose);
   }
 
-  handleConnectionError = err => {
+  handleConnectionError = (err) => {
     debugError('connection error', err);
   };
 
@@ -145,36 +145,28 @@ export function connect(
   { socket: socketOptions = {}, backend: backendOptions = {}, ...options } = {},
 ) {
   const queue = uuidv4();
-  return amqp
-    .connect(
-      connectionUri,
-      socketOptions,
-    )
-    .then(connection =>
-      Promise.all([
-        connectPublisher(connection),
-        connectBackend(connection, {
-          ...backendOptions,
-          queue,
-        }),
-      ]).spread(
-        (publisher, backend) =>
-          new CeleryClient(
-            connection,
-            publisher,
-            backend, // TODO support rpc backend
-            options,
-          ),
-      ),
-    );
+  return amqp.connect(connectionUri, socketOptions).then((connection) =>
+    Promise.all([
+      connectPublisher(connection),
+      connectBackend(connection, {
+        ...backendOptions,
+        queue,
+      }),
+    ]).spread(
+      (publisher, backend) =>
+        new CeleryClient(
+          connection,
+          publisher,
+          backend, // TODO support rpc backend
+          options,
+        ),
+    ),
+  );
 }
 
 export function withClient(connectionUri, options, fn) {
   return Promise.using(
-    connect(
-      connectionUri,
-      options,
-    ).disposer(client => client.close()),
+    connect(connectionUri, options).disposer((client) => client.close()),
     fn,
   );
 }

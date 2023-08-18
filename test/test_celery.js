@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-const assert = require('assert');
-const { withClient } = require('../dist/celery-shoot.cjs');
+import assert from 'node:assert';
+import { withClient } from '../dist/celery-shoot.esm.js';
 
 const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
 
@@ -11,14 +11,14 @@ function getClient(fn) {
 describe('celery functional tests', () => {
   describe('initialization', () => {
     it('should create a client without error', async () =>
-      getClient(async client => {
+      getClient(async (client) => {
         assert.ok(client != null);
       }));
   });
 
   describe('basic task calls', () => {
     it('should call a task without error', async () =>
-      getClient(async client => {
+      getClient(async (client) => {
         assert.ok(client != null);
         const result = await client
           .call({
@@ -32,7 +32,7 @@ describe('celery functional tests', () => {
 
   describe('eta', () => {
     it('should call a task with a delay', async () =>
-      getClient(async client => {
+      getClient(async (client) => {
         const calledAt = new Date().getTime();
         const delay = 1000;
         const acceptableDelay = 1000;
@@ -52,7 +52,7 @@ describe('celery functional tests', () => {
 
   describe('expires', () => {
     it('should call a task which expires', async () =>
-      getClient(async client => {
+      getClient(async (client) => {
         const pastTime = -10 * 1000;
 
         try {

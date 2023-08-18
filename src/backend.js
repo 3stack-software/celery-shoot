@@ -76,7 +76,7 @@ export default class Backend {
     channel.on('error', this.handleChannelError);
   }
 
-  handleChannelError = err => {
+  handleChannelError = (err) => {
     debugError('channel#backend error', err);
     this.channel.connection.close();
   };
@@ -88,7 +88,7 @@ export default class Backend {
     this.closed = true;
     this.channel.removeListener('close', this.handleChannelClose);
     this.channel.removeListener('error', this.handleChannelError);
-    this.sinks.forEach(sink => {
+    this.sinks.forEach((sink) => {
       if (!sink.isStopped) {
         sink.error(new Error('closed'));
       }
@@ -107,7 +107,7 @@ export default class Backend {
     await this.channel.consume(this.queue, this.handleMessage);
   }
 
-  handleMessage = msg => {
+  handleMessage = (msg) => {
     if (this.closed) {
       return;
     }
@@ -187,7 +187,7 @@ export default class Backend {
 
   async waitForStatus(taskId, status = 'SUCCESS') {
     return this.observeTask(taskId)
-      .pipe(first(data => data.status === status))
+      .pipe(first((data) => data.status === status))
       .toPromise();
   }
 }

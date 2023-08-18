@@ -1,7 +1,8 @@
 import Promise from 'bluebird';
 
 export default function defer() {
-  let resolve, reject;
+  let resolve;
+  let reject;
   const promise = new Promise((a, b) => {
     resolve = a;
     reject = b;

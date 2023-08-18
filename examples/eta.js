@@ -1,8 +1,8 @@
-const { withClient } = require('../dist/celery-shoot.cjs');
+import { withClient } from '../dist/celery-shoot.esm.js';
 
 const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
 
-withClient(AMQP_HOST, {}, async client => {
+withClient(AMQP_HOST, {}, async (client) => {
   await client.call({
     name: 'tasks.send_email',
     kwargs: {

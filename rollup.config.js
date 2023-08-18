@@ -1,21 +1,15 @@
-import git from 'git-rev-sync';
-import resolve from 'rollup-plugin-node-resolve';
-import replace from 'rollup-plugin-replace';
-import babel from 'rollup-plugin-babel';
-import builtins from 'builtin-modules';
-import pkg from './package.json';
+import fs from 'node:fs';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import babel from '@rollup/plugin-babel';
 
-const dependencies = Object.keys(pkg.dependencies);
+const pkg = JSON.parse(
+  fs.readFileSync(new URL('./package.json', import.meta.url)),
+);
+
 export default {
   input: 'src/index.js',
-  external(id) {
-    // treat all our dependencies as external
-    return (
-      builtins.includes(id) ||
-      dependencies.includes(id) ||
-      dependencies.some(dep => id.startsWith(`${dep}/`))
-    );
-  },
+  external: [/node_modules/],
   output: [
     {
       file: pkg.main,
@@ -32,24 +26,17 @@ export default {
   ],
   plugins: [
     replace({
-      npm_package_version: pkg.version,
-      git_hash: git.short(),
+      preventAssignment: true,
+      values: {
+        npm_package_version: pkg.version,
+      },
     }),
     resolve(),
     babel({
-      exclude: 'node_modules/**',
-      presets: [
-        [
-          '@babel/env',
-          {
-            modules: false,
-            targets: {
-              node: true,
-            },
-          },
-        ],
-      ],
-      plugins: ['@babel/plugin-proposal-class-properties'],
+      targets: {
+        node: 'current',
+      },
+      presets: ['@babel/preset-env'],
       babelrc: false,
     }),
   ],

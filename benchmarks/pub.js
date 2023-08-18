@@ -1,5 +1,4 @@
-const Promise = require('bluebird');
-const { withClient } = require('../dist/celery-shoot.cjs');
+import { withClient } from '../dist/celery-shoot.esm.js';
 
 const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';
 
@@ -11,7 +10,7 @@ withClient(
   {
     sendTaskSentEvent: false,
   },
-  async client => {
+  async (client) => {
     console.time(L);
     for (let i = 0; i < n; i++) {
       try {

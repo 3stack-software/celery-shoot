@@ -35,10 +35,10 @@ export class ReconnectingClient {
       debugLog('connecting');
       this._connectionAttempts += 1;
       rawConnect(this.connectionUri, this.options).then(
-        client => {
+        (client) => {
           this._connected(client);
         },
-        err => {
+        (err) => {
           this._disconnected(err);
         },
       );
@@ -48,10 +48,10 @@ export class ReconnectingClient {
       debugLog(`connecting, attempt ${this._connectionAttempts}`);
       this._connectionAttempts += 1;
       rawConnect(this.connectionUri, this.options).then(
-        client => {
+        (client) => {
           this._connected(client);
         },
-        err => {
+        (err) => {
           this._disconnected(err);
         },
       );
@@ -68,7 +68,7 @@ export class ReconnectingClient {
         () => {
           this._disconnected();
         },
-        err => {
+        (err) => {
           this._disconnected(err);
         },
       );
@@ -106,7 +106,7 @@ export class ReconnectingClient {
         () => {
           this._disconnected();
         },
-        err => {
+        (err) => {
           this._disconnected(err);
         },
       );
@@ -154,11 +154,13 @@ export class ReconnectingClient {
   }
 
   async whenClosed() {
-    return this.state$.pipe(first(state => state === DISCONNECTED)).toPromise();
+    return this.state$
+      .pipe(first((state) => state === DISCONNECTED))
+      .toPromise();
   }
 
   async whenConnected() {
-    return this.state$.pipe(first(state => state === CONNECTED)).toPromise();
+    return this.state$.pipe(first((state) => state === CONNECTED)).toPromise();
   }
 }
 
@@ -171,12 +173,7 @@ export async function connect(connectionUri, options) {
 
 export function withClient(connectionUri, options, fn) {
   return Promise.using(
-    Promise.resolve(
-      connect(
-        connectionUri,
-        options,
-      ),
-    ).disposer(client => {
+    Promise.resolve(connect(connectionUri, options)).disposer((client) => {
       client.close();
       return client.whenClosed();
     }),

@@ -18,7 +18,7 @@ export class Publisher {
     channel.connection.addListener('unblocked', this.handleConnectionUnblocked);
   }
 
-  handleChannelError = err => {
+  handleChannelError = (err) => {
     debugError('channel#publisher error', err);
     this.channel.connection.close();
   };
