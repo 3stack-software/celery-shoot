@@ -1,5 +1,4 @@
-import Promise from 'bluebird';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { connect as rawConnect } from './client';
 import { debugError, debugLog } from './logging';
@@ -154,13 +153,15 @@ export class ReconnectingClient {
   }
 
   async whenClosed() {
-    return this.state$
-      .pipe(first((state) => state === DISCONNECTED))
-      .toPromise();
+    return firstValueFrom(
+      this.state$.pipe(first((state) => state === DISCONNECTED)),
+    );
   }
 
   async whenConnected() {
-    return this.state$.pipe(first((state) => state === CONNECTED)).toPromise();
+    return firstValueFrom(
+      this.state$.pipe(first((state) => state === CONNECTED)),
+    );
   }
 }
 
@@ -171,12 +172,12 @@ export async function connect(connectionUri, options) {
   return client;
 }
 
-export function withClient(connectionUri, options, fn) {
-  return Promise.using(
-    Promise.resolve(connect(connectionUri, options)).disposer((client) => {
-      client.close();
-      return client.whenClosed();
-    }),
-    fn,
-  );
+export async function withClient(connectionUri, options, fn) {
+  const client = await connect(connectionUri, options);
+  try {
+    await fn(client);
+  } finally {
+    client.close();
+    await client.whenClosed();
+  }
 }

@@ -1,6 +1,5 @@
 import amqp from 'amqplib';
 import uuidv4 from 'uuid/v4';
-import Promise from 'bluebird';
 import { connect as connectBackend } from './backend';
 import defer from './defer';
 import { debugError, debugLog } from './logging';
@@ -140,33 +139,23 @@ export class CeleryClient {
   }
 }
 
-export function connect(
+export async function connect(
   connectionUri,
   { socket: socketOptions = {}, backend: backendOptions = {}, ...options } = {},
 ) {
   const queue = uuidv4();
-  return amqp.connect(connectionUri, socketOptions).then((connection) =>
-    Promise.all([
-      connectPublisher(connection),
-      connectBackend(connection, {
-        ...backendOptions,
-        queue,
-      }),
-    ]).spread(
-      (publisher, backend) =>
-        new CeleryClient(
-          connection,
-          publisher,
-          backend, // TODO support rpc backend
-          options,
-        ),
-    ),
-  );
-}
-
-export function withClient(connectionUri, options, fn) {
-  return Promise.using(
-    connect(connectionUri, options).disposer((client) => client.close()),
-    fn,
+  const connection = await amqp.connect(connectionUri, socketOptions);
+  const [publisher, backend] = await Promise.all([
+    connectPublisher(connection),
+    connectBackend(connection, {
+      ...backendOptions,
+      queue,
+    }),
+  ]);
+  return new CeleryClient(
+    connection,
+    publisher,
+    backend, // TODO support rpc backend
+    options,
   );
 }

@@ -1,4 +1,3 @@
-import Promise from 'bluebird';
 import { withClient } from '../dist/celery-shoot.esm.js';
 
 const AMQP_HOST = process.env.AMQP_HOST || 'amqp://guest:guest@localhost//';

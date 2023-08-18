@@ -1,5 +1,3 @@
-import Promise from 'bluebird';
-
 export default function defer() {
   let resolve;
   let reject;

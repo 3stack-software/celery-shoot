@@ -1,4 +1,4 @@
-import { ReplaySubject, throwError } from 'rxjs';
+import { ReplaySubject, throwError, firstValueFrom } from 'rxjs';
 import { first } from 'rxjs/operators';
 import defer from './defer';
 import { debugError } from './logging';
@@ -186,9 +186,9 @@ export default class Backend {
   }
 
   async waitForStatus(taskId, status = 'SUCCESS') {
-    return this.observeTask(taskId)
-      .pipe(first((data) => data.status === status))
-      .toPromise();
+    return firstValueFrom(
+      this.observeTask(taskId).pipe(first((data) => data.status === status)),
+    );
   }
 }
 

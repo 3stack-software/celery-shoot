@@ -33,8 +33,8 @@ describe('celery functional tests', () => {
   describe('eta', () => {
     it('should call a task with a delay', async () =>
       getClient(async (client) => {
-        const calledAt = new Date().getTime();
-        const delay = 1000;
+        const calledAt = Date.now();
+        const delay = 1500;
         const acceptableDelay = 1000;
 
         const result = await client
@@ -43,12 +43,17 @@ describe('celery functional tests', () => {
             eta: delay,
           })
           .result.get();
+        const resultAt = Date.now();
+        assert.ok(
+          resultAt - calledAt > delay,
+          `delay should be minimum ${delay}, got ${resultAt - calledAt}`,
+        );
         assert.ok(
           result > calledAt + acceptableDelay,
           `!(${result} > ${calledAt + acceptableDelay} )`,
         );
       }));
-  });
+  }).timeout(4000);
 
   describe('expires', () => {
     it('should call a task which expires', async () =>
@@ -62,7 +67,7 @@ describe('celery functional tests', () => {
               expires: pastTime,
             })
             .result.get();
-          assert.ok(false);
+          assert.ok(false, 'unreachable');
         } catch (err) {
           assert.strictEqual(err.status, 'REVOKED');
         }
