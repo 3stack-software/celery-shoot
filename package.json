@@ -1,6 +1,6 @@
 {
   "name": "celery-shoot",
-  "version": "5.0.0-alpha.10",
+  "version": "5.0.0-alpha.13",
   "type": "module",
   "exports": {
     "import": "./dist/celery-shoot.esm.js",
