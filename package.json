@@ -2,8 +2,10 @@
   "name": "celery-shoot",
   "version": "5.0.0-alpha.10",
   "type": "module",
-  "main": "dist/celery-shoot.cjs.js",
-  "module": "dist/celery-shoot.esm.js",
+  "exports": {
+    "import": "./dist/celery-shoot.esm.js",
+    "require": "./dist/celery-shoot.cjs.js"
+  },
   "description": "Celery client for Node (Forked from node-celery)",
   "author": "Nathan Muir <ndmuir@gmail.com>",
   "contributors": [
@@ -62,6 +64,7 @@
     "build": "npx rollup -c",
     "dev": "npx rollup -c -w",
     "test": "env NODE_OPTIONS=\"--experimental-specifier-resolution=node\" npx mocha test/test_celery.js",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "prepare": "npx rollup -c"
   }
 }

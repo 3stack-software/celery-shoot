@@ -12,13 +12,13 @@ export default {
   external: [/node_modules/],
   output: [
     {
-      file: pkg.main,
+      file: pkg.exports.require,
       format: 'cjs',
       name: 'celery-shoot',
       sourcemap: false,
     },
     {
-      file: pkg.module,
+      file: pkg.exports.import,
       format: 'es',
       name: 'celery-shoot',
       sourcemap: false,
