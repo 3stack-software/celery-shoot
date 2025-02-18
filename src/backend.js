@@ -165,6 +165,9 @@ export default class Backend {
   }
 
   destroyTask(taskId) {
+    if (this.closed) {
+      return;
+    }
     const sink = this.sinks.get(taskId);
     if (sink != null) {
       // new messages for this correlationId will go to dead letter queue
