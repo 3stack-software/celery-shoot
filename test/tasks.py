@@ -6,6 +6,11 @@ from celery import Celery
 broker = os.environ.get("AMQP_HOST", "amqp://guest:guest@localhost//")
 
 app = Celery("tasks", broker=broker, backend="rpc://")
+app.conf.update(
+    task_queue_max_priority=2,
+    # reduce prefetching so we can test priority queues
+    worker_prefetch_multiplier=1,
+)
 
 
 @app.task
@@ -38,6 +43,12 @@ def echo(msg):
     return msg
 
 
+@app.task
+def sleep_and_echo(x, msg):
+    time.sleep(x)
+    return msg
+
+
 # client should call with ignoreResult=True as results are never sent
 @app.task(ignore_result=True)
 def send_email(to="me@example.com", title="hi"):
@@ -45,4 +56,11 @@ def send_email(to="me@example.com", title="hi"):
 
 
 if __name__ == "__main__":
-    app.worker_main(argv=["worker", "--loglevel=INFO"])
+    app.worker_main(
+        argv=[
+            "worker",
+            "--loglevel=INFO",
+            # reduce concurrency so we can test priority queues
+            "--concurrency=4",
+        ]
+    )

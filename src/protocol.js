@@ -33,6 +33,7 @@ export function asTaskV2(id, task, args, kwargs, options) {
     shadow = null,
     chain = null,
     origin = null,
+    priority = null,
   } = options;
   if (eta != null) {
     eta = formatDateOrRelativeMs(eta);
@@ -64,6 +65,9 @@ export function asTaskV2(id, task, args, kwargs, options) {
     correlationId: id,
     replyTo,
   };
+  if (Number.isSafeInteger(priority) && priority >= 0) {
+    properties.priority = priority;
+  }
   const body = [
     args,
     kwargs,
@@ -106,6 +110,7 @@ export function asTaskV1(id, task, args, kwargs, options) {
     replyTo = '',
     timeLimit = null,
     softTimeLimit = null,
+    priority = null,
   } = options;
   if (eta != null) {
     eta = formatDateOrRelativeMs(eta);
@@ -119,6 +124,9 @@ export function asTaskV1(id, task, args, kwargs, options) {
     correlationId: id,
     replyTo,
   };
+  if (Number.isSafeInteger(priority) && priority >= 0) {
+    properties.priority = priority;
+  }
   const body = {
     task,
     id,
