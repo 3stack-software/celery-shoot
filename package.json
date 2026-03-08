@@ -3,6 +3,7 @@
   "version": "5.0.0-alpha.15",
   "type": "module",
   "exports": {
+    "types": "./celery-shoot.d.ts",
     "import": "./dist/celery-shoot.esm.js",
     "require": "./dist/celery-shoot.cjs.js"
   },
