@@ -44,7 +44,13 @@ declare module 'celery-shoot' {
     /** The boolean return value of the underlying RabbitMQ publish call (true if the write did not exceed high water mark). */
     writeResult: boolean;
     /** A TaskResult to observe or await the task’s result, or null if ignoreResult was true. */
-    result: TaskResult | null;
+    result: TaskResult;
+  }
+  export interface CallResultIgnored {
+    /** The boolean return value of the underlying RabbitMQ publish call (true if the write did not exceed high water mark). */
+    writeResult: boolean;
+    /** A TaskResult to observe or await the task’s result, or null if ignoreResult was true. */
+    result: null;
   }
 
   /**
@@ -155,6 +161,8 @@ declare module 'celery-shoot' {
     /**
      * Proxy to CeleryClient.call; sends a task. Throws if not connected.
      */
+    call(options: CallOptions & { ignoreResult: true }): CallResultIgnored;
+
     call(options: CallOptions): CallResult;
 
     /**
