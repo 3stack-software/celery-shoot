@@ -13,7 +13,7 @@
     "Mher Movsisyan <mher.movsisyan@gmail.com>"
   ],
   "dependencies": {
-    "amqplib": "^0.10.3",
+    "amqplib": "^1.0.3",
     "debug": "^4.3.4",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0"
