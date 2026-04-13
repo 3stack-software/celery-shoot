@@ -3,52 +3,64 @@ import time
 
 from celery import Celery
 
-broker = os.environ.get('AMQP_HOST', 'amqp://guest:guest@localhost//')
+broker = os.environ.get("AMQP_HOST", "amqp://guest:guest@localhost//")
 
-celery = Celery('tasks', broker=broker)
+app = Celery("tasks", broker=broker, backend="rpc://")
+app.conf.update(
+    task_queue_max_priority=2,
+    # reduce prefetching so we can test priority queues
+    worker_prefetch_multiplier=1,
+)
 
-celery.conf.update(
-        CELERY_ACCEPT_CONTENT=["json"],
-        CELERY_RESULT_BACKEND = "amqp",
-        CELERY_RESULT_SERIALIZER='json',
-        )
 
-
-@celery.task
+@app.task
 def add(x, y):
-    print('got task to add {} + {} = {}'.format(x, y, x+y))
+    print(f"got task to add {x} + {y} = {x+y}")
     return x + y
 
 
-@celery.task
+@app.task
 def sleep(x):
     time.sleep(x)
     return x
 
 
-@celery.task
+@app.task
 def curtime():
     current_time = int(time.time() * 1000)
-    print('the time is {}'.format(current_time))
-    print('the time is {}'.format(time.time()))
+    print(f"the time is {current_time}")
+    print(f"the time is {time.time()}")
     return current_time
 
 
-@celery.task
+@app.task
 def error(msg):
     raise Exception(msg)
 
 
-@celery.task
+@app.task
 def echo(msg):
     return msg
 
 
+@app.task
+def sleep_and_echo(x, msg):
+    time.sleep(x)
+    return msg
+
+
 # client should call with ignoreResult=True as results are never sent
-@celery.task(ignore_result=True)
-def send_email(to='me@example.com', title='hi'):
+@app.task(ignore_result=True)
+def send_email(to="me@example.com", title="hi"):
     print("Sending email to '%s' with title '%s'" % (to, title))
 
 
 if __name__ == "__main__":
-    celery.start()
+    app.worker_main(
+        argv=[
+            "worker",
+            "--loglevel=INFO",
+            # reduce concurrency so we can test priority queues
+            "--concurrency=4",
+        ]
+    )

@@ -1,5 +1,9 @@
+.idea/
 benchmarks/
 env/
 examples/
 meteor/
+rollup.config.js
+src/
 test/
+README.md

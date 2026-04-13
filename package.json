@@ -1,30 +1,71 @@
 {
   "name": "celery-shoot",
-  "version": "4.2.1",
+  "version": "5.1.0-alpha.1",
+  "type": "module",
+  "exports": {
+    "types": "./celery-shoot.d.ts",
+    "import": "./dist/celery-shoot.esm.js",
+    "require": "./dist/celery-shoot.cjs.js"
+  },
   "description": "Celery client for Node (Forked from node-celery)",
   "author": "Nathan Muir <ndmuir@gmail.com>",
   "contributors": [
     "Mher Movsisyan <mher.movsisyan@gmail.com>"
   ],
   "dependencies": {
-    "amqp-coffee": "^0.1.31",
-    "async": "^2.6.1",
-    "debug": "^4.1.0",
-    "lodash": "^4.17.11",
-    "underscore": "^1.9.1",
-    "urijs": "^1.19.1",
-    "uuid": "^3.3.2"
+    "amqplib": "^1.0.3",
+    "debug": "^4.3.4",
+    "rxjs": "^7.8.1",
+    "uuid": "^9.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/3stack-software/celery-shoot.git"
   },
   "devDependencies": {
-    "mocha": "*"
+    "@babel/core": "^7.22.8",
+    "@babel/eslint-parser": "^7.22.7",
+    "@babel/preset-env": "^7.22.10",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-replace": "^5.0.2",
+    "eslint": "^8.44.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "mocha": "^10.2.0",
+    "prettier": "^3.0.0",
+    "rollup": "^3.27.0"
+  },
+  "eslintConfig": {
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+      "sourceType": "module",
+      "requireConfigFile": false
+    },
+    "extends": [
+      "airbnb-base",
+      "prettier"
+    ],
+    "rules": {
+      "no-underscore-dangle": "off",
+      "no-await-in-loop": "off",
+      "no-restricted-syntax": "off"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   },
   "engine": {
-    "node": ">=8"
+    "node": ">=14"
   },
-  "main": "src/celery.js",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "npx rollup -c",
+    "dev": "npx rollup -c -w",
+    "test": "env NODE_OPTIONS=\"--experimental-specifier-resolution=node\" npx mocha test/test_celery.js",
+    "pretest": "npm run build",
+    "prepare": "npx rollup -c"
+  }
 }
